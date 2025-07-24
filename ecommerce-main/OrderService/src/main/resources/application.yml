@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orderdbs   # Or use 'postgres' if running in Docker
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: update      # Use 'update' for development. Use 'validate' or 'none' in production!
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  retry:
+    enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.Ecommerce: DEBUG
+    org.springframework.web: DEBUG
+    feign: DEBUG
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+feign:
+  circuitbreaker:
+    enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      productService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+      paymentService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
