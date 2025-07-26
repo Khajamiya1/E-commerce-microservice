@@ -1,0 +1,86 @@
+
+
+services:
+  postgres-order:
+    image: postgres:15
+    container_name: postgres-order
+    restart: always
+    environment:
+      POSTGRES_DB: orderdbs
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5433:5432"
+    networks:
+      - ecommerce-net
+
+  postgres-product:
+    image: postgres:15
+    container_name: postgres-product
+    restart: always
+    environment:
+      POSTGRES_DB: productdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5434:5432"
+    networks:
+      - ecommerce-net
+
+  eureka-server:
+    image: khaja858/eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - ecommerce-net
+
+  gateway-service:
+    image: khaja858/gateway-service:latest
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - ecommerce-net
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+
+  order-service:
+    image: khaja858/order-service:latest
+    container_name: order-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-order
+      - eureka-server
+    networks:
+      - ecommerce-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-order:5432/orderdbs
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+
+  product-service:
+    image: khaja858/product-service:latest
+    container_name: product-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres-product
+      - eureka-server
+    networks:
+      - ecommerce-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-product:5432/productdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: test
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+
+    restart: always  
+
+networks:
+  ecommerce-net:
+    driver: bridge

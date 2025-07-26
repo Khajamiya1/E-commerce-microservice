@@ -1,0 +1,85 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: product-service
+
+
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/productdb   # Or use 'postgres' if running in Docker
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: test
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  retry:
+    enabled: true
+
+# PostgreSQL configuration (commented for future use)
+#  datasource:
+##    url: jdbc:postgresql://localhost:5432/productdb
+#    url: jdbc:postgresql://postgres-product:5432/productdb
+#    driver-class-name: org.postgresql.Driver
+#    username: root
+#    password: root
+#  jpa:
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+#    defaultZone: http://eureka-server:8761/eureka
+#    defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+#    defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka}
+    register-with-eureka: true
+    fetch-registry: true
+    # NEW: Retry settings
+    initial-instance-info-replication-interval-seconds: 10
+    registry-fetch-interval-seconds: 10
+    eureka-service-url-poll-interval-seconds: 10
+
+  instance:
+    prefer-ip-address: true
+
+feign:
+  circuitbreaker:
+    enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      orderService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+
+logging:
+  level:
+    root: INFO
+    com.ecommerce.productservice: DEBUG
+    feign: DEBUG
+    org.springframework.web: DEBUG
+
+
+splunk:
+  hec:
+    url: http://localhost:8000
+    token: 82d3b871-1db4-4da8-983a-6c08bed3f0b9
+    index: main
+    source-type: spring-logs
+

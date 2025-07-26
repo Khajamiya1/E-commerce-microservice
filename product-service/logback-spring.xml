@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="SPLUNK" class="com.splunk.logging.HttpEventCollectorLogbackAppender">
+        <url>https://localhost:8088</url>
+        <token>77c93ca8-c080-43bb-b084-d3eac106c470</token>
+        <index>main</index>
+        <sourcetype>spring-logs</sourcetype>
+        <disableCertificateValidation>true</disableCertificateValidation>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <logger name="com.Ecommerce.ProductService" level="INFO" additivity="false">
+        <appender-ref ref="SPLUNK"/>
+    </logger>
+    <root level="ERROR">
+        <appender-ref ref="SPLUNK"/>
+    </root>
+</configuration>

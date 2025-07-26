@@ -1,0 +1,47 @@
+server:
+  port: 8078
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+
+          routes:
+            - id: order-service
+              uri: lb://order-service   # ? must match spring.application.name in OrderService
+              predicates:
+                - Path=/api/orders/**   # ? MUST match your OrderController mappings
+
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/products/**
+
+            - id: paymentservice
+              uri: lb://paymentservice
+              predicates:
+                - Path=/api/payments/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+#      defaultZone: http://eureka-server:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+  instance:
+    prefer-ip-address: true
+splunk:
+  hec:
+    uri: https://splunk-server:8088
+    token: f982bd41-3dbc-4840-9db4-d3b1f315ef54
+    index: e-commerce
